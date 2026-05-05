@@ -2,6 +2,10 @@
 
 import { AdditionalFilters } from "@/components/search/AdditionalFilters.tsx";
 import { FormValues } from "@/components/search/form.tsx";
+import {
+  PRICE_FILTER_MAX_DOLLARS,
+  PRICE_FILTER_MIN_DOLLARS,
+} from "@/config/price-filter";
 import { TimeRangeFilters } from "@/components/search/TimeRangeFilters.tsx";
 import { VehicleList } from "@/components/search/VehicleList.tsx";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
@@ -36,7 +40,7 @@ export function SearchPage() {
       minPassengers: 1,
       classification: filterOptions.classifications,
       make: filterOptions.makes,
-      price: [10, 100],
+      price: [PRICE_FILTER_MIN_DOLLARS, PRICE_FILTER_MAX_DOLLARS],
     },
   });
 

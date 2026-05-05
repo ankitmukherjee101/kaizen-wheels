@@ -75,9 +75,6 @@ function searchVehicles(input: {
     priceMax,
   } = input;
 
-  const parsedPriceMin = priceMin;
-  const parsedPriceMax = priceMax === 100 ? Number.MAX_SAFE_INTEGER : priceMax;
-
   try {
     const { start, end } = parseAndValidateTimeRange(startTime, endTime);
 
@@ -87,8 +84,8 @@ function searchVehicles(input: {
       passengerCount,
       classifications,
       makes,
-      priceMinDollars: parsedPriceMin,
-      priceMaxDollars: parsedPriceMax,
+      priceMinDollars: priceMin,
+      priceMaxDollars: priceMax,
     });
 
     return {

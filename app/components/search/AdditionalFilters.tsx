@@ -1,4 +1,9 @@
 import { FormValues } from "@/components/search/form.tsx";
+import {
+  PRICE_FILTER_MAX_DOLLARS,
+  PRICE_FILTER_MIN_DOLLARS,
+  PRICE_FILTER_STEP_DOLLARS,
+} from "@/config/price-filter";
 import { Button } from "@/components/shared/ui/button";
 import {
   FormControl,
@@ -31,15 +36,14 @@ export function AdditionalFilters({ filterOptions }: { filterOptions: FilterOpti
             <div className="flex w-full items-baseline justify-between mb-4">
               <FormLabel>Price</FormLabel>
               <div className="text-sm">
-                {formatDollars(minPrice)} to{" "}
-                {maxPrice === 100 ? "$100+" : formatDollars(maxPrice)}
+                {formatDollars(minPrice)} to {formatDollars(maxPrice)}
               </div>
             </div>
             <FormControl>
               <RangeSlider
-                min={10}
-                max={100}
-                step={10}
+                min={PRICE_FILTER_MIN_DOLLARS}
+                max={PRICE_FILTER_MAX_DOLLARS}
+                step={PRICE_FILTER_STEP_DOLLARS}
                 value={field.value}
                 onValueChange={field.onChange}
               />
@@ -137,8 +141,8 @@ export function AdditionalFilters({ filterOptions }: { filterOptions: FilterOpti
         disabled={
           form.getValues().minPassengers === 1 &&
           form.getValues().make === undefined &&
-          form.getValues().price[0] === 10 &&
-          form.getValues().price[1] === 100
+          form.getValues().price[0] === PRICE_FILTER_MIN_DOLLARS &&
+          form.getValues().price[1] === PRICE_FILTER_MAX_DOLLARS
         }
       >
         Reset all
