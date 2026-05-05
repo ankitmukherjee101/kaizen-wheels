@@ -1,4 +1,6 @@
+import { DiscountBadge } from "@/components/shared/DiscountBadge";
 import { formatCents } from "@/lib/formatters";
+import { API } from "@/server/api";
 import { Vehicle } from "@/server/data";
 import { useBase64Image } from "@/util/useBase64Image";
 import Link from "next/link";
@@ -9,16 +11,31 @@ export function VehicleListItem({
   vehicle,
   startDateTime,
   endDateTime,
+  showTripEstimate,
 }: {
   vehicle: Vehicle;
   startDateTime: Date;
   endDateTime: Date;
+  showTripEstimate: boolean;
 }) {
-  const bookNowParams = new URLSearchParams({
-    id: vehicle.id,
-    start: startDateTime.toISOString(),
-    end: endDateTime.toISOString(),
-  });
+  const quote = showTripEstimate
+    ? API.getQuote({
+        vehicleId: vehicle.id,
+        startTime: startDateTime.toISOString(),
+        endTime: endDateTime.toISOString(),
+      })
+    : null;
+
+  const reviewHref =
+    showTripEstimate &&
+    Number.isFinite(startDateTime.getTime()) &&
+    Number.isFinite(endDateTime.getTime())
+      ? `/review?${new URLSearchParams({
+          id: vehicle.id,
+          start: startDateTime.toISOString(),
+          end: endDateTime.toISOString(),
+        }).toString()}`
+      : null;
 
   const imgData = useBase64Image(vehicle.thumbnail_url);
 
@@ -53,16 +70,47 @@ export function VehicleListItem({
           </div>
         </dl>
       </div>
-      <div className="md:ml-auto text-center md:text-right flex flex-col justify-center mt-4 md:mt-0">
-        <p className="text-xl font-bold">
-          {formatCents(vehicle.hourly_rate_cents)}
-          <span className="text-sm text-gray-700 font-normal ml-0.5">/hr</span>
-        </p>
-        <Button asChild className="mt-2 w-full sm:w-auto">
-          <Link href={`/review?${bookNowParams.toString()}`}>
+      <div className="md:ml-auto text-center md:text-right flex flex-col justify-center mt-4 md:mt-0 min-w-[11rem]">
+        {quote ? (
+          <div className="space-y-1">
+            <p className="text-xs text-gray-600">Est. trip total</p>
+            <div className="text-xl font-bold tracking-tight">
+              {quote.appliedDiscount !== "none" ? (
+                <span className="flex flex-col items-end gap-1.5 sm:items-end">
+                  <span className="flex flex-col items-end gap-0.5">
+                    <span className="text-base text-gray-500 line-through font-normal">
+                      {formatCents(quote.baseTotalCents)}
+                    </span>
+                    <span>{formatCents(quote.totalPriceCents)}</span>
+                  </span>
+                  <DiscountBadge discount={quote.appliedDiscount} />
+                </span>
+              ) : (
+                formatCents(quote.totalPriceCents)
+              )}
+            </div>
+          </div>
+        ) : (
+          <p className="text-xl font-bold">
+            {formatCents(vehicle.hourly_rate_cents)}
+            <span className="text-sm text-gray-700 font-normal ml-0.5">/hr</span>
+          </p>
+        )}
+        {reviewHref ? (
+          <Button asChild className="mt-2 w-full sm:w-auto">
+            <Link href={reviewHref}>Book now</Link>
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="secondary"
+            className="mt-2 w-full sm:w-auto cursor-not-allowed"
+            disabled
+            title="Select valid pick-up and drop-off times to book"
+          >
             Book now
-          </Link>
-        </Button>
+          </Button>
+        )}
       </div>
     </Card>
   );

@@ -9,9 +9,17 @@ export interface FormValues {
   classification: string[];
 }
 
-export const combineDateTime = (date: Date, time: string) => {
-  const [hours, minutes] = time.split(":");
+export const combineDateTime = (date: Date | undefined, time: string | undefined) => {
+  if (!date || time == null || time === "") {
+    return new Date(NaN);
+  }
+  const [hoursStr, minutesStr] = time.split(":");
+  const hours = parseInt(hoursStr ?? "", 10);
+  const minutes = parseInt(minutesStr ?? "", 10);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return new Date(NaN);
+  }
   const combinedDate = new Date(date);
-  combinedDate.setHours(parseInt(hours), parseInt(minutes));
+  combinedDate.setHours(hours, minutes, 0, 0);
   return combinedDate;
 };

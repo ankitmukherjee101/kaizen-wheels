@@ -1,6 +1,7 @@
 "use client"
 
 import { VehicleDetails } from "@/components/review/VehicleDetails";
+import { DiscountBadge } from "@/components/shared/DiscountBadge";
 import { ErrorFallback } from "@/components/shared/ErrorFallback";
 import { Button } from "@/components/shared/ui/button";
 import { Separator } from "@/components/shared/ui/separator";
@@ -97,7 +98,19 @@ function Content() {
             <div>
               <dt className="text-sm text-gray-600">Total Cost</dt>
               <dd className="text-2xl font-medium tracking-tight">
-                {formatCents(quote.totalPriceCents)}
+                {quote.appliedDiscount !== "none" ? (
+                  <span className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                    <span className="flex flex-col items-start gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+                      <span className="text-lg text-gray-500 line-through font-normal">
+                        {formatCents(quote.baseTotalCents)}
+                      </span>
+                      <span>{formatCents(quote.totalPriceCents)}</span>
+                    </span>
+                    <DiscountBadge discount={quote.appliedDiscount} />
+                  </span>
+                ) : (
+                  formatCents(quote.totalPriceCents)
+                )}
               </dd>
             </div>
           </dl>

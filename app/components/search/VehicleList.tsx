@@ -24,17 +24,30 @@ export function VehicleList() {
     [endDate, endTime],
   );
 
-  const searchResponse = API.searchVehicles({
-    startTime: startDateTime.toISOString(),
-    endTime: endDateTime.toISOString(),
-    passengerCount: Number(minPassengers),
-    classifications,
-    makes,
-    priceMin: price[0],
-    priceMax: price[1],
-  });
+  const hasValidTimeRange =
+    Number.isFinite(startDateTime.getTime()) &&
+    Number.isFinite(endDateTime.getTime()) &&
+    endDateTime > startDateTime;
 
-  if (searchResponse.vehicles.length === 0) {
+  const vehicles = hasValidTimeRange
+    ? API.searchVehicles({
+        startTime: startDateTime.toISOString(),
+        endTime: endDateTime.toISOString(),
+        passengerCount: Number(minPassengers),
+        classifications,
+        makes,
+        priceMin: price[0],
+        priceMax: price[1],
+      }).vehicles
+    : API.browseVehicles({
+        passengerCount: Number(minPassengers),
+        classifications,
+        makes,
+        priceMin: price[0],
+        priceMax: price[1],
+      });
+
+  if (vehicles.length === 0) {
     return (
       <div className="flex justify-center items-center h-32">
         <p className="text-muted-foreground">
@@ -47,12 +60,13 @@ export function VehicleList() {
   return (
     <div>
       <ul className="space-y-4">
-        {searchResponse.vehicles.map((vehicle) => (
+        {vehicles.map((vehicle) => (
           <VehicleListItem
             key={vehicle.id}
             vehicle={vehicle}
             startDateTime={startDateTime}
             endDateTime={endDateTime}
+            showTripEstimate={hasValidTimeRange}
           />
         ))}
       </ul>

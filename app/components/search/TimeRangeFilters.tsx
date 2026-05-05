@@ -1,4 +1,4 @@
-import { FormValues } from "@/components/search/form.tsx";
+import { combineDateTime, FormValues } from "@/components/search/form.tsx";
 import { Button } from "@/components/shared/ui/button";
 import { Calendar } from "@/components/shared/ui/calendar";
 import {
@@ -20,9 +20,16 @@ import {
   SelectValue,
 } from "@/components/shared/ui/select";
 import { cn } from "@/lib/classnames.ts";
-import { addMinutes, format, isBefore, isSameDay, startOfDay } from "date-fns";
+import {
+  addHours,
+  addMinutes,
+  format,
+  isBefore,
+  isSameDay,
+  startOfDay,
+} from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 
 function getTimeOptions(startDate: Date) {
@@ -44,13 +51,30 @@ function getTimeOptions(startDate: Date) {
 export function TimeRangeFilters() {
   const form = useFormContext<FormValues>();
   const startDate = form.watch("startDate");
+  const startTime = form.watch("startTime");
   const endDate = form.watch("endDate");
+  const endTime = form.watch("endTime");
 
   const startTimeOptions = useMemo(
     () => getTimeOptions(startDate),
     [startDate],
   );
   const endTimeOptions = useMemo(() => getTimeOptions(endDate), [endDate]);
+
+  /** Keep drop-off strictly after pick-up (fixes invalid ranges from calendar/time edits). */
+  useEffect(() => {
+    const start = combineDateTime(startDate, startTime);
+    const end = combineDateTime(endDate, endTime);
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime())) {
+      return;
+    }
+    if (end > start) {
+      return;
+    }
+    const next = addHours(start, 1);
+    form.setValue("endDate", next, { shouldDirty: true });
+    form.setValue("endTime", format(next, "HH:mm"), { shouldDirty: true });
+  }, [startDate, startTime, endDate, endTime, form]);
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -90,7 +114,7 @@ export function TimeRangeFilters() {
                       }
                     }}
                     disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0))
+                      isBefore(date, startOfDay(new Date()))
                     }
                     initialFocus
                   />
@@ -107,7 +131,10 @@ export function TimeRangeFilters() {
           <FormItem>
             <FormLabel>Pick-up time</FormLabel>
             <FormControl>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a time" />
                 </SelectTrigger>
@@ -163,7 +190,8 @@ export function TimeRangeFilters() {
                       }
                     }}
                     disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0))
+                      isBefore(date, startOfDay(new Date())) ||
+                      isBefore(date, startOfDay(startDate))
                     }
                     initialFocus
                   />
@@ -180,7 +208,10 @@ export function TimeRangeFilters() {
           <FormItem>
             <FormLabel>Drop-off time</FormLabel>
             <FormControl>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a time" />
                 </SelectTrigger>

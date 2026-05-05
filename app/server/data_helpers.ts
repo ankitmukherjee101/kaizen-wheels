@@ -61,6 +61,40 @@ export const getAvailableVehicles = ({
   });
 };
 
+/** Same filters as `getAvailableVehicles` but without reservation overlap (for browse when dates are not set). */
+export const filterVehiclesByCriteria = ({
+  passengerCount,
+  classifications,
+  makes,
+  priceMinDollars,
+  priceMaxDollars,
+}: {
+  passengerCount: number;
+  classifications: string[];
+  makes: string[];
+  priceMinDollars: number;
+  priceMaxDollars: number;
+}) => {
+  return VEHICLES.filter((car) => {
+    const matchesPrice =
+      car.hourly_rate_cents >= priceMinDollars * 100 &&
+      car.hourly_rate_cents <= priceMaxDollars * 100;
+
+    const matchesClassification = classifications.includes(car.classification);
+
+    const matchesMake = makes.includes(car.make);
+
+    const matchesPassengerCount = car.max_passengers >= passengerCount;
+
+    return (
+      matchesPrice &&
+      matchesClassification &&
+      matchesMake &&
+      matchesPassengerCount
+    );
+  });
+};
+
 export const getVehicles = () => {
   return VEHICLES;
 };
