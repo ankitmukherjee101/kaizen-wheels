@@ -9,6 +9,7 @@ import { formatCents } from "@/lib/formatters";
 import { API } from "@/server/api";
 import { format, formatDuration, intervalToDuration } from "date-fns";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { MiniPageLayout } from "../shared/MiniPageLayout";
 
@@ -106,7 +107,7 @@ function Content() {
                       </span>
                       <span>{formatCents(quote.totalPriceCents)}</span>
                     </span>
-                    <DiscountBadge discount={quote.appliedDiscount} />
+                    <DiscountBadge label={quote.appliedDiscountLabel} />
                   </span>
                 ) : (
                   formatCents(quote.totalPriceCents)
@@ -135,7 +136,13 @@ export function ReviewPage() {
       <ErrorBoundary
         fallback={<ErrorFallback message="Failed to load reservation" />}
       >
-        <Content />
+        <Suspense
+          fallback={
+            <p className="text-sm text-muted-foreground">Loading reservation…</p>
+          }
+        >
+          <Content />
+        </Suspense>
       </ErrorBoundary>
     </MiniPageLayout>
   );

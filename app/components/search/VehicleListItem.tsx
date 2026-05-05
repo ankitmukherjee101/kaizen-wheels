@@ -83,7 +83,7 @@ export function VehicleListItem({
                     </span>
                     <span>{formatCents(quote.totalPriceCents)}</span>
                   </span>
-                  <DiscountBadge discount={quote.appliedDiscount} />
+                  <DiscountBadge label={quote.appliedDiscountLabel} />
                 </span>
               ) : (
                 formatCents(quote.totalPriceCents)
