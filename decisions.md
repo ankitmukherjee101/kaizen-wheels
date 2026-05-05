@@ -17,3 +17,11 @@ Rental quote math (holidays, long-rental threshold, and “pick the cheaper disc
 **Vitest** covers **`getTripQuote`** in **`app/server/PricingService.test.ts`**: baseline totals, holiday and duration rules (including edge cases like exactly 72 hours and hourly rates below $10), competing discounts, and tie-breaking when two candidates yield the same cents total.
 
 **Future improvement (more time):** abstract dedicated pricing rules behind a **strategy** interface so each discount is a pluggable strategy (eligibility + priced total). The quoting mechanism would iterate registered strategies and choose the best outcome without editing core quote flow whenever we add or retire a rule.
+
+---
+
+## Note for designers — booking flow UX
+
+Promotional holidays affect pricing but are not surfaced in the booking UI today. **Improvement:** add **visual indicators on the date calendars** (markers, legend, or badges) for the configured holiday dates so users can see when a trip might qualify for the holiday discount before they confirm times.
+
+**Improvement:** **pick-up and drop-off date pickers are independent.** If someone chooses a start date in a later month, the end-date calendar often stays on the initial month, so they must navigate manually to align the range. Linking the calendars (e.g. open the end picker focused on the start month or sync displayed months after start selection) would reduce friction.
