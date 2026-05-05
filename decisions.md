@@ -16,6 +16,8 @@ Rental quote math (holidays, long-rental threshold, and “pick the cheaper disc
 
 **Vitest** covers **`getTripQuote`** in **`app/server/PricingService.test.ts`**: baseline totals, holiday and duration rules (including edge cases like exactly 72 hours and hourly rates below $10), competing discounts, and tie-breaking when two candidates yield the same cents total.
 
+**Tradeoff** - I chose a functional candidates-array approach for the refactor over a formal Strategy Pattern because it provided immediate testability and logic isolation within the remaining time box.
+
 **Future improvement (more time):** abstract dedicated pricing rules behind a **strategy** interface so each discount is a pluggable strategy (eligibility + priced total). The quoting mechanism would iterate registered strategies and choose the best outcome without editing core quote flow whenever we add or retire a rule.
 
 ---
